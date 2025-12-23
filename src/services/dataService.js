@@ -376,5 +376,48 @@ export const dataService = {
             .update({ status, reviewed_by: user.id })
             .eq('id', requestId);
         if (error) throw error;
+    },
+
+    // --- Phase 8: Notifications ---
+
+    async savePushSubscription(sub) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Upsert logic (checking by subscription JSON content is simplified here)
+        // Ideally we check endpoint unique constraint
+        const { error } = await supabase
+            .from('push_subscriptions')
+            .insert({
+                user_id: user.id,
+                subscription: sub,
+                user_agent: navigator.userAgent
+            });
+
+        // Ignore duplicate key errors (already subscribed)
+        if (error && error.code !== '23505') throw error;
+    },
+
+    async notifyTeammates(message) {
+        // Calls the Vercel Serverless Function
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            const challenge = await this.getMyChallenge(); // Get current challenge ID
+
+            if (!challenge) return;
+
+            await fetch('/api/send-notification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: 'Gravity Update',
+                    message: message,
+                    target_challenge_id: challenge.id,
+                    exclude_user_id: user.id
+                })
+            });
+        } catch (e) {
+            console.error("Notification trigger failed (non-blocking):", e);
+        }
     }
 };

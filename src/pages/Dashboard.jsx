@@ -6,8 +6,10 @@ import EvidenceModal from '../components/EvidenceModal';
 import JoinChallenge from './JoinChallenge';
 import { PlusCircle, Info } from 'lucide-react';
 import { dataService } from '../services/dataService';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 
 const Dashboard = () => {
+    const { isSubscribed, subscribeToPush } = usePushNotifications();
     const [showLogModal, setShowLogModal] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
     const [challenge, setChallenge] = useState(null);
@@ -30,6 +32,8 @@ const Dashboard = () => {
 
     const handleEvidenceSaved = () => {
         setRefreshKey(prev => prev + 1);
+        // Trigger notification blast (fire and forget)
+        dataService.notifyTeammates(`Someone just crushed a workout! 🏋️`);
     };
 
     const getTodayString = () => {
@@ -46,11 +50,22 @@ const Dashboard = () => {
 
     return (
         <div className="container fade-in" style={{ paddingTop: '2rem' }}>
-            <header style={{ marginBottom: '2rem' }}>
-                <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Dashboard</h1>
-                <p style={{ color: 'var(--color-text-muted)' }}>
-                    Challenge: <span style={{ color: 'var(--color-primary)' }}>{challenge.name}</span>
-                </p>
+            <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Dashboard</h1>
+                    <p style={{ color: 'var(--color-text-muted)' }}>
+                        Challenge: <span style={{ color: 'var(--color-primary)' }}>{challenge.name}</span>
+                    </p>
+                </div>
+                {!isSubscribed && (
+                    <button
+                        onClick={subscribeToPush}
+                        style={{ background: 'var(--color-surface-hover)', border: '1px solid var(--color-primary)', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        title="Enable Notifications"
+                    >
+                        🔔
+                    </button>
+                )}
             </header>
 
             <section style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
