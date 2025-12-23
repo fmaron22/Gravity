@@ -57,7 +57,7 @@ export function usePushNotifications() {
             // 2. Subscribe to Push Service (Google/Apple)
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY.trim())
             });
 
             // 3. Send Subscription to Our DB
