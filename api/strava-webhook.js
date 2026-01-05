@@ -83,10 +83,52 @@ export default async function handler(req, res) {
                 });
                 const activity = await activityRes.json();
 
-                // D. Insert into Daily Logs
-                // Note: We need to handle potential dupes if they logged manually + strava
-                // But daily_logs has unique(user_id, date). Strava might clash if already logged.
-                // Strategy: Try insert, if fail (duplicate), maybe update? For now, just try insert.
+                // --- VALIDATION LOGIC START ---
+
+                // 1. Check if Manual
+                if (activity.manual) {
+                    console.log(`Activity ${activityId} rejected: Manual entry.`);
+                    return res.status(200).send('Activity rejected: Manual entry');
+                }
+
+                // 2. Get User's Competition Rules
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('current_challenge_id')
+                    .eq('id', interaction.user_id)
+                    .single();
+
+                let rules = { min_duration: 30, min_hr: 0 }; // Defaults
+
+                if (profile?.current_challenge_id) {
+                    const { data: competition } = await supabase
+                        .from('competitions')
+                        .select('rules')
+                        .eq('id', profile.current_challenge_id)
+                        .single();
+
+                    if (competition?.rules) {
+                        rules = { ...rules, ...competition.rules };
+                    }
+                }
+
+                // 3. Validate against Rules
+                const durationMinutes = Math.round((activity.moving_time || 0) / 60);
+                const avgHr = Math.round(activity.average_heartrate || 0);
+
+                if (durationMinutes < (rules.min_duration || 0)) {
+                    console.log(`Activity ${activityId} rejected: Duration ${durationMinutes} < ${rules.min_duration}`);
+                    return res.status(200).send('Activity rejected: Too short');
+                }
+
+                if (avgHr < (rules.min_hr || 0)) {
+                    console.log(`Activity ${activityId} rejected: HR ${avgHr} < ${rules.min_hr}`);
+                    return res.status(200).send('Activity rejected: Heart rate too low');
+                }
+
+                // --- VALIDATION LOGIC END ---
+
+                // D. Insert into Daily Logs (PENDING PHOTO)
                 const logDate = activity.start_date.split('T')[0];
 
                 const { error: insertError } = await supabase
@@ -94,11 +136,11 @@ export default async function handler(req, res) {
                     .upsert({
                         user_id: interaction.user_id,
                         date: logDate,
-                        avg_heart_rate: Math.round(activity.average_heartrate || 0),
-                        duration_minutes: Math.round((activity.moving_time || 0) / 60),
-                        photo_proof_url: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=2069' // Generic "Synced" Placeholder or download map
-                        // is_verified could be true since it comes from Strava?
-                        // is_verified: true
+                        avg_heart_rate: avgHr,
+                        duration_minutes: durationMinutes,
+                        photo_proof_url: null,     // EXPLICITLY NULL -> Pending Photo
+                        is_verified: false,        // Not verified yet
+                        notes: `Imported from Strava: ${activity.name}`
                     }, { onConflict: 'user_id, date' });
 
                 if (insertError) console.error("Log Insert Error:", insertError);

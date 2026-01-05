@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Card from './Card';
 import Button from './Button';
 import Input from './Input';
-import { MessageSquare, Flag, CheckCircle, AlertOctagon, User } from 'lucide-react';
+import { MessageSquare, Flag, CheckCircle, AlertOctagon, User, Camera, Upload } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -12,6 +12,31 @@ const FeedItem = ({ post }) => {
     const [showComments, setShowComments] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [isReported, setIsReported] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [proofUrl, setProofUrl] = useState(post.photo_proof_url);
+    const fileInputRef = React.useRef(null);
+
+    const handleUploadClick = () => {
+        fileInputRef.current.click();
+    };
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        try {
+            const url = await dataService.uploadEvidence(file);
+            await dataService.updateLogProof(post.id, url);
+            setProofUrl(url); // Update local state
+            alert("Proof uploaded successfully!");
+        } catch (error) {
+            console.error(error);
+            alert("Failed to upload proof.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     const handleComment = async (e) => {
         e.preventDefault();
@@ -74,10 +99,33 @@ const FeedItem = ({ post }) => {
 
             {/* Evidence Photos */}
             <div className="evidence-gallery">
-                {post.photo_proof_url && (
+                {proofUrl ? (
                     <div className="img-wrapper">
-                        <img src={post.photo_proof_url} alt="Proof" onClick={() => window.open(post.photo_proof_url, '_blank')} />
+                        <img src={proofUrl} alt="Proof" onClick={() => window.open(proofUrl, '_blank')} />
                         <span className="img-label">Stats</span>
+                    </div>
+                ) : (
+                    // PENDING PROOF STATE
+                    <div
+                        className="img-wrapper pending-proof"
+                        onClick={handleUploadClick}
+                        style={{ background: 'rgba(252, 76, 2, 0.1)', border: '2px dashed #fc4c02', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fc4c02' }}
+                    >
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            onChange={handleFileChange}
+                            accept="image/*"
+                        />
+                        {isUploading ? (
+                            <span>Uploading...</span>
+                        ) : (
+                            <>
+                                <Camera size={24} style={{ marginBottom: '0.5rem' }} />
+                                <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Upload Proof</span>
+                            </>
+                        )}
                     </div>
                 )}
                 {post.hand_signal_url && (

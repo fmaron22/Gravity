@@ -128,6 +128,14 @@ export const dataService = {
         }
     },
 
+    async updateLogProof(logId, photoUrl) {
+        const { error } = await supabase
+            .from('daily_logs')
+            .update({ photo_proof_url: photoUrl })
+            .eq('id', logId);
+        if (error) throw error;
+    },
+
     // --- Phase 4: Social Feed ---
 
     async getGlobalFeed() {
