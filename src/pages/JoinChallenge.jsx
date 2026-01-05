@@ -20,8 +20,8 @@ const JoinChallenge = ({ onJoinSuccess }) => {
             alert("Welcome to the team! 🚀");
             onJoinSuccess();
         } catch (err) {
-            console.error(err);
-            setError('Invalid code or connection error.');
+            console.error("Join Challenge Error:", err);
+            setError(err.message || 'Invalid code or connection error.');
         } finally {
             setLoading(false);
         }

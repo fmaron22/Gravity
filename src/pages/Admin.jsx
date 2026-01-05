@@ -63,8 +63,14 @@ const Admin = () => {
 
     const handleCreateChallenge = async (e) => {
         e.preventDefault();
+        const sanitizedForm = {
+            ...challengeForm,
+            join_code: challengeForm.join_code.trim().toUpperCase(),
+            name: challengeForm.name.trim()
+        };
+
         try {
-            await dataService.createChallenge(challengeForm);
+            await dataService.createChallenge(sanitizedForm);
             alert("🏆 Challenge Created Successfully!");
             // Reset form
             setChallengeForm({ ...challengeForm, join_code: '', name: '' });

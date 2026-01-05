@@ -257,7 +257,7 @@ export const dataService = {
         const { data: challenge, error: findError } = await supabase
             .from('challenges')
             .select('id')
-            .eq('join_code', code)
+            .ilike('join_code', code.trim())
             .single();
 
         if (findError || !challenge) throw new Error("Invalid Challenge Code");
@@ -419,5 +419,42 @@ export const dataService = {
         } catch (e) {
             console.error("Notification trigger failed (non-blocking):", e);
         }
+    },
+
+    // --- Phase 9: Integrations (Strava) ---
+
+    async getIntegrationStatus() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return null;
+
+        // Check if row exists in user_integrations
+        const { data, error } = await supabase
+            .from('user_integrations')
+            .select('provider, created_at')
+            .eq('user_id', user.id)
+            .eq('provider', 'strava')
+            .single();
+
+        if (error && error.code !== 'PGRST116') console.error("Integration check failed:", error); // PGRST116 is "Row not found"
+        return !!data;
+    },
+
+    async linkStrava(authCode) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Call our Vercel Backend Function to exchange token securey
+        const response = await fetch('/api/strava-auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                code: authCode,
+                user_id: user.id
+            })
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Strava linking failed');
+        return result;
     }
 };

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import { Settings, Award, TrendingUp, User, Edit2, Save, X } from 'lucide-react';
+import { Settings, Award, TrendingUp, User, Edit2, Save, X, Activity } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +14,9 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
     const [profile, setProfile] = useState(null);
+
     const [stats, setStats] = useState({ streak: 0, total: 0 });
+    const [isStravaConnected, setIsStravaConnected] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -31,7 +33,19 @@ const Profile = () => {
 
     const loadProfile = async () => {
         try {
+            // Check for Strava Code in URL (Coming back from Auth)
+            const params = new URLSearchParams(window.location.search);
+            const authCode = params.get('code');
+            if (authCode) {
+                // Remove code from URL to prevent loop/re-use
+                window.history.replaceState({}, document.title, window.location.pathname);
+                await dataService.linkStrava(authCode);
+                alert("Strava Connected Successfully!");
+            }
+
             const data = await dataService.getProfile();
+            const connected = await dataService.getIntegrationStatus();
+            setIsStravaConnected(connected);
             // Fetch real stats
             const userStats = await dataService.getUserStats();
 
@@ -160,6 +174,36 @@ const Profile = () => {
                 )}
             </Card>
 
+            {/* Integrations Section */}
+            <Card style={{ marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <Activity className="text-orange-500" size={24} style={{ color: '#fc4c02' }} />
+                        <div>
+                            <h3 style={{ fontSize: '1.1rem', margin: 0 }}>Strava Integration</h3>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', margin: 0 }}>
+                                Sync workouts from Garmin, Apple Watch, etc.
+                            </p>
+                        </div>
+                    </div>
+                    {isStravaConnected ? (
+                        <span style={{ color: 'var(--color-success)', fontWeight: 'bold', fontSize: '0.9rem' }}>Connected</span>
+                    ) : (
+                        <Button
+                            onClick={() => {
+                                const clientId = import.meta.env.VITE_STRAVA_CLIENT_ID;
+                                const redirectUri = window.location.origin + '/profile'; // Redirect back here
+                                const scope = "activity:read_all"; // Need to read activities
+                                window.location.href = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=force&scope=${scope}`;
+                            }}
+                            style={{ background: '#fc4c02', color: 'white', border: 'none' }}
+                        >
+                            Connect
+                        </Button>
+                    )}
+                </div>
+            </Card>
+
             {/* Stats Cards - NOW USING REAL DATA */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
                 <Card>
@@ -194,7 +238,7 @@ const Profile = () => {
             display: block;
         }
       `}</style>
-        </div>
+        </div >
     );
 };
 
