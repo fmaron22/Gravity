@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import { Settings, Award, TrendingUp, User, Edit2, Save, X, Activity } from 'lucide-react';
+import { Settings, Award, TrendingUp, User, Edit2, Save, X, Activity, Camera, Lock } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -84,6 +84,30 @@ const Profile = () => {
         }
     };
 
+    const handleAvatarUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (profile?.avatar_locked) {
+            alert("Profile photo is locked. Contact support to change it.");
+            return;
+        }
+
+        if (!confirm("IMPORTANT: This photo will be locked and used for face verification on all future workouts. Ensure your face is clearly visible. Continue?")) return;
+
+        try {
+            setLoading(true);
+            const url = await dataService.uploadAvatar(file);
+            await dataService.updateProfile({ avatar_url: url, avatar_locked: true });
+            await loadProfile();
+        } catch (error) {
+            console.error("Avatar upload failed:", error);
+            alert("Failed to upload photo.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleLogout = async () => {
         await signOut();
         navigate('/login');
@@ -113,8 +137,22 @@ const Profile = () => {
             {/* Personal Details Section */}
             <Card className="profile-details" style={{ marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-                    <div className="profile-avatar">
-                        <User size={32} />
+                    <div className="profile-avatar" style={{ position: 'relative', overflow: 'hidden' }}>
+                        {profile?.avatar_url ? (
+                            <img src={profile.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                            <User size={32} />
+                        )}
+                        {!profile?.avatar_locked ? (
+                            <label style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.6)', cursor: 'pointer', display: 'flex', justifyContent: 'center', padding: '2px' }}>
+                                <Camera size={14} color="white" />
+                                <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
+                            </label>
+                        ) : (
+                            <div style={{ position: 'absolute', top: 2, right: 2, background: 'rgba(0,0,0,0.6)', borderRadius: '50%', padding: '2px' }}>
+                                <Lock size={10} color="var(--color-primary)" />
+                            </div>
+                        )}
                     </div>
                     <div>
                         <h3>{formData.first_name || 'Anonymous'} {formData.last_name}</h3>

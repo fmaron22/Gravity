@@ -4,6 +4,7 @@ import Button from './Button';
 import Input from './Input';
 import { MessageSquare, Flag, CheckCircle, AlertOctagon, User, Camera, Upload } from 'lucide-react';
 import { dataService } from '../services/dataService';
+import { verificationService } from '../services/verificationService';
 import { useAuth } from '../contexts/AuthContext';
 
 const FeedItem = ({ post }) => {
@@ -24,15 +25,43 @@ const FeedItem = ({ post }) => {
         const file = e.target.files[0];
         if (!file) return;
 
+        // 1. Strict Owner Check
+        if (user.id !== post.user_id) {
+            alert("You can only upload proof for your own activities.");
+            return;
+        }
+
         setIsUploading(true);
         try {
+            // 2. EXIF Date Verification
+            const dateCheck = await verificationService.verifyExifDate(file, post.date);
+            if (!dateCheck.valid) {
+                alert(`Verification Failed: ${dateCheck.reason}`);
+                return;
+            }
+
+            // 3. Face Verification
+            // Ensure we have a profile avatar to compare against
+            if (!post.profiles?.avatar_url) {
+                alert("You must set a Profile Picture first (in your Profile) to enable Face Verification.");
+                return;
+            }
+
+            const faceCheck = await verificationService.verifyFace(post.profiles.avatar_url, file);
+            if (!faceCheck.match) {
+                alert(`Face Verification Failed: ${faceCheck.reason}`);
+                return;
+            }
+
+            // 4. Upload if Passed
             const url = await dataService.uploadEvidence(file);
             await dataService.updateLogProof(post.id, url);
-            setProofUrl(url); // Update local state
-            alert("Proof uploaded successfully!");
+            setProofUrl(url);
+            alert(`Verified & Uploaded! (Match Score: ${faceCheck.score?.toFixed(2)})`);
+
         } catch (error) {
             console.error(error);
-            alert("Failed to upload proof.");
+            alert(`Error: ${error.message}`);
         } finally {
             setIsUploading(false);
         }
@@ -117,9 +146,10 @@ const FeedItem = ({ post }) => {
                             style={{ display: 'none' }}
                             onChange={handleFileChange}
                             accept="image/*"
+                            capture="environment"
                         />
                         {isUploading ? (
-                            <span>Uploading...</span>
+                            <span>Verifying...</span>
                         ) : (
                             <>
                                 <Camera size={24} style={{ marginBottom: '0.5rem' }} />

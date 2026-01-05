@@ -8,7 +8,7 @@ export const dataService = {
 
         const { data, error } = await supabase
             .from('profiles')
-            .select('*')
+            .select('*, avatar_locked')
             .eq('id', user.id)
             .single();
 
@@ -90,6 +90,18 @@ export const dataService = {
         }
 
         return { streak, total };
+    },
+
+    async uploadAvatar(file) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `avatar_${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+        // Use 'evidence' bucket if 'avatars' doesn't exist yet, but let's try 'avatars'
+        // Ideally we create 'avatars' bucket.
+        const { error } = await supabase.storage.from('avatars').upload(filePath, file);
+        if (error) throw error;
+        const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+        return data.publicUrl;
     },
 
     async uploadEvidence(file) {
