@@ -443,6 +443,24 @@ export const dataService = {
 
     // --- Phase 9: Integrations (Strava) ---
 
+    async manualSyncStrava() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
+
+        const response = await fetch('/api/strava-sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: user.id })
+        });
+
+        if (!response.ok) {
+            const err = await response.text();
+            throw new Error(err || 'Sync failed');
+        }
+
+        return await response.json();
+    },
+
     async getIntegrationStatus() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return null;

@@ -17,6 +17,7 @@ const Profile = () => {
 
     const [stats, setStats] = useState({ streak: 0, total: 0 });
     const [isStravaConnected, setIsStravaConnected] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -105,6 +106,21 @@ const Profile = () => {
             alert("Failed to upload photo.");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSync = async () => {
+        setIsSyncing(true);
+        try {
+            const result = await dataService.manualSyncStrava();
+            alert(`Sync Complete! Imported ${result.synced} new activities.`);
+            // Refresh integration status or stats? loading profile usually does stats
+            loadProfile();
+        } catch (error) {
+            console.error(error);
+            alert("Sync Failed: " + error.message);
+        } finally {
+            setIsSyncing(false);
         }
     };
 
@@ -225,25 +241,45 @@ const Profile = () => {
                         </div>
                     </div>
                     {isStravaConnected ? (
-                        <span style={{ color: 'var(--color-success)', fontWeight: 'bold', fontSize: '0.9rem' }}>Connected</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <span style={{ color: 'var(--color-success)', fontWeight: 'bold', fontSize: '0.9rem' }}>Connected</span>
+                            <Button
+                                onClick={handleSync}
+                                disabled={isSyncing}
+                                variant="secondary"
+                                style={{ fontSize: '0.8rem', padding: '0.25rem 0.75rem', height: 'auto' }}
+                            >
+                                <Activity size={14} style={{ marginRight: '4px' }} />
+                                {isSyncing ? 'Syncing...' : 'Sync Now'}
+                            </Button>
+                        </div>
                     ) : (
-                        <Button
-                            onClick={() => {
-                                const clientId = import.meta.env.VITE_STRAVA_CLIENT_ID;
-                                const redirectUri = window.location.origin + '/profile'; // Redirect back here
-                                const scope = "activity:read_all"; // Need to read activities
-                                window.location.href = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=force&scope=${scope}`;
-                            }}
-                            style={{ background: '#fc4c02', color: 'white', border: 'none' }}
-                        >
-                            Connect
-                        </Button>
-                    )}
-                </div>
-            </Card>
+                        variant = "secondary"
+                                style={{ fontSize: '0.8rem', padding: '0.25rem 0.75rem', height: 'auto' }}
+                            >
+                    <Activity size={14} style={{ marginRight: '4px' }} />
+                    {isSyncing ? 'Syncing...' : 'Sync Now'}
+                </Button>
+        </div>
+    ) : (
+        <Button
+            onClick={() => {
+                const clientId = import.meta.env.VITE_STRAVA_CLIENT_ID;
+                const redirectUri = window.location.origin + '/profile'; // Redirect back here
+                const scope = "activity:read_all"; // Need to read activities
+                window.location.href = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=force&scope=${scope}`;
+            }}
+            style={{ background: '#fc4c02', color: 'white', border: 'none' }}
+        >
+            Connect
+        </Button>
+    )
+}
+        </div >
+            </Card >
 
-            {/* Stats Cards - NOW USING REAL DATA */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+    {/* Stats Cards - NOW USING REAL DATA */ }
+    < div style = {{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
                 <Card>
                     <div style={{ color: 'var(--color-primary)', marginBottom: '0.5rem' }}>
                         <TrendingUp size={24} />
@@ -258,9 +294,9 @@ const Profile = () => {
                     <h3 style={{ fontSize: '1.5rem' }}>{stats.total}</h3>
                     <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Total Workouts</p>
                 </Card>
-            </div>
+            </div >
 
-            <style>{`
+    <style>{`
         .profile-avatar {
           width: 64px; height: 64px;
           border-radius: 50%;
