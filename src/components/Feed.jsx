@@ -97,7 +97,6 @@ const FeedItem = ({ post }) => {
     };
 
     return (
-    return (
         <Card
             className="feed-item"
             style={{
