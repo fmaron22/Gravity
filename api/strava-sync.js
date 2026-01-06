@@ -100,6 +100,7 @@ export default async function handler(req, res) {
                     date: logDate,
                     avg_heart_rate: avgHr,
                     duration_minutes: durationMinutes,
+                    distance_km: (activity.distance || 0) / 1000,
                     // safe to upsert now
                     is_verified: false,
                     notes: `Synced Manual: ${activity.name}`

@@ -139,12 +139,18 @@ const FeedItem = ({ post }) => {
             <div className="stats-grid">
                 <div className="stat">
                     <span className="label">Heart Rate</span>
-                    <span className="value">{post.avg_heart_rate} bpm</span>
+                    <span className="value">{post.avg_heart_rate > 0 ? `${post.avg_heart_rate} bpm` : '--'}</span>
                 </div>
                 <div className="stat">
                     <span className="label">Duration</span>
                     <span className="value">{post.duration_minutes} min</span>
                 </div>
+                {post.distance_km > 0 && (
+                    <div className="stat">
+                        <span className="label">Distance</span>
+                        <span className="value">{post.distance_km.toFixed(2)} km</span>
+                    </div>
+                )}
             </div>
 
             {/* Evidence Photos */}

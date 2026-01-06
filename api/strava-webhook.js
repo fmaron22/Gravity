@@ -137,6 +137,7 @@ export default async function handler(req, res) {
                         date: logDate,
                         avg_heart_rate: avgHr,
                         duration_minutes: durationMinutes,
+                        distance_km: (activity.distance || 0) / 1000,
                         photo_proof_url: null,     // EXPLICITLY NULL -> Pending Photo
                         is_verified: false,        // Not verified yet
                         notes: `Imported from Strava: ${activity.name}${validationNotes}`

@@ -180,7 +180,9 @@ const Dashboard = () => {
                                         <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{log.date}</span>
                                     </div>
                                     <div style={{ fontSize: '0.9rem', marginBottom: '1rem', color: 'var(--color-text-secondary)' }}>
-                                        {log.duration_minutes} min | {log.avg_heart_rate} bpm
+                                        {log.duration_minutes} min
+                                        {log.distance_km > 0 && ` | ${log.distance_km.toFixed(2)} km`}
+                                        {log.avg_heart_rate > 0 && ` | ${log.avg_heart_rate} bpm`}
                                     </div>
                                     <PendingActivityItem log={log} onUploadSuccess={checkPendingLogs} />
                                 </Card>
