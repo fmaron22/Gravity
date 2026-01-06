@@ -131,9 +131,6 @@ const Admin = () => {
                                         <CheckCircle size={16} /> Authorize
                                     </button>
                                 )}
-                                <button className="btn-action delete" onClick={() => handleDelete(log.id)}>
-                                    <Trash2 size={16} /> Delete
-                                </button>
                             </div>
                         </Card>
                     ))}
