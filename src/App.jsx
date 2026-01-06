@@ -5,8 +5,9 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Social from './pages/Social';
 import Profile from './pages/Profile';
-import Admin from './pages/Admin'; // Added import for Admin
+import Admin from './pages/Admin';
 import Login from './pages/Login';
+import ResetPassword from './pages/ResetPassword';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
@@ -28,8 +29,11 @@ function AppRoutes() {
         <Route index element={<Dashboard />} />
         <Route path="social" element={<Social />} />
         <Route path="profile" element={<Profile />} />
-        <Route path="admin" element={<Admin />} /> {/* Added Admin route */}
+        <Route path="admin" element={<Admin />} />
       </Route>
+
+      {/* Recovery Route */}
+      <Route path="/update-password" element={<ResetPassword />} />
     </Routes>
   );
 }
