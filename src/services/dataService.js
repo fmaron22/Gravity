@@ -170,6 +170,8 @@ export const dataService = {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return [];
 
+        const todayStr = new Date().toISOString().split('T')[0];
+
         const { data, error } = await supabase
             .from('daily_logs')
             .select(`
@@ -178,6 +180,7 @@ export const dataService = {
             `)
             .eq('user_id', user.id)
             .is('photo_proof_url', null) // FILTER: Only pending
+            .eq('date', todayStr) // STRICTLY TODAY
             .order('date', { ascending: false });
 
         if (error) throw error;
