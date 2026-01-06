@@ -170,7 +170,8 @@ export const dataService = {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return [];
 
-        const todayStr = new Date().toISOString().split('T')[0];
+        // Use Local Date to avoid UTC mismatch (e.g. late night workouts)
+        const todayStr = new Date().toLocaleDateString('en-CA');
 
         const { data, error } = await supabase
             .from('daily_logs')
