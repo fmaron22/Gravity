@@ -61,10 +61,15 @@ export default async function handler(req, res) {
 
         const activities = await activitiesRes.json();
         let syncedCount = 0;
+        let manualCount = 0;
+        let duplicateCount = 0;
 
         // 4. Process Each
         for (const activity of activities) {
-            if (activity.manual) continue; // Skip manual
+            if (activity.manual) {
+                manualCount++;
+                continue;
+            }
 
             const logDate = activity.start_date.split('T')[0];
             const durationMinutes = Math.round((activity.moving_time || 0) / 60);
@@ -82,6 +87,7 @@ export default async function handler(req, res) {
 
             if (existing && existing.is_verified) {
                 console.log(`Skipping ${logDate}: Already verified`);
+                duplicateCount++;
                 continue;
             }
 
@@ -104,7 +110,7 @@ export default async function handler(req, res) {
             success: true,
             synced: syncedCount,
             total_fetched: activities.length,
-            message: `Fetched ${activities.length} activities. Imported ${syncedCount}. (Ignored ${activities.length - syncedCount} as Manual/Duplicate)`
+            message: `Fetched ${activities.length}. Imported: ${syncedCount}. Ignored: ${manualCount} Manual, ${duplicateCount} Verified.`
         });
 
     } catch (error) {
