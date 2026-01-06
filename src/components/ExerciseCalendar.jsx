@@ -76,49 +76,47 @@ const ExerciseCalendar = () => {
             const isCompleted = !!log;
 
             days.push(
-                days.push(
-                    <button
-                        key={dateKey}
-                        className={`calendar-day ${isCompleted ? 'completed' : ''} ${!isCompleted ? 'disabled-day' : ''}`}
-                        onClick={() => isCompleted && handleDayClick(dateKey)}
-                        disabled={!isCompleted}
-                        style={{ cursor: isCompleted ? 'pointer' : 'default' }}
-                    >
-                        {day}
-                        {isCompleted && (
-                            <div className="check-mark"><Check size={12} strokeWidth={4} /></div>
-                        )}
-                    </button>
-                );
+                <button
+                    key={dateKey}
+                    className={`calendar-day ${isCompleted ? 'completed' : ''} ${!isCompleted ? 'disabled-day' : ''}`}
+                    onClick={() => isCompleted && handleDayClick(dateKey)}
+                    disabled={!isCompleted}
+                    style={{ cursor: isCompleted ? 'pointer' : 'default' }}
+                >
+                    {day}
+                    {isCompleted && (
+                        <div className="check-mark"><Check size={12} strokeWidth={4} /></div>
+                    )}
+                </button>
             );
         }
-return days;
+        return days;
     };
 
-const monthName = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+    const monthName = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
-return (
-    <>
-        <Card className="calendar-card">
-            <div className="calendar-header">
-                <button onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)))}>
-                    <ChevronLeft size={20} />
-                </button>
-                <h3>{monthName}</h3>
-                <button onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)))}>
-                    <ChevronRight size={20} />
-                </button>
-            </div>
+    return (
+        <>
+            <Card className="calendar-card">
+                <div className="calendar-header">
+                    <button onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)))}>
+                        <ChevronLeft size={20} />
+                    </button>
+                    <h3>{monthName}</h3>
+                    <button onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)))}>
+                        <ChevronRight size={20} />
+                    </button>
+                </div>
 
-            <div className="calendar-grid-header">
-                <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
-            </div>
+                <div className="calendar-grid-header">
+                    <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                </div>
 
-            <div className="calendar-grid">
-                {generateCalendarDays()}
-            </div>
+                <div className="calendar-grid">
+                    {generateCalendarDays()}
+                </div>
 
-            <style>{`
+                <style>{`
           .calendar-header {
             display: flex;
             justify-content: space-between;
@@ -175,17 +173,17 @@ return (
             right: 2px;
           }
         `}</style>
-        </Card>
+            </Card>
 
-        {selectedDate && (
-            <EvidenceModal
-                date={selectedDate}
-                onClose={() => setSelectedDate(null)}
-                onSave={onEvidenceSaved}
-            />
-        )}
-    </>
-);
+            {selectedDate && (
+                <EvidenceModal
+                    date={selectedDate}
+                    onClose={() => setSelectedDate(null)}
+                    onSave={onEvidenceSaved}
+                />
+            )}
+        </>
+    );
 };
 
 export default ExerciseCalendar;
