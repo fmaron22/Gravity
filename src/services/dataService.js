@@ -158,8 +158,27 @@ export const dataService = {
         profiles:user_id (username, avatar_url),
         comments (id, content, created_at, profiles:user_id(username))
       `)
+            .not('photo_proof_url', 'is', null) // FILTERED: Only verified
             .order('created_at', { ascending: false })
             .limit(50);
+
+        if (error) throw error;
+        return data;
+    },
+
+    async getPendingLogs() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return [];
+
+        const { data, error } = await supabase
+            .from('daily_logs')
+            .select(`
+                *,
+                profiles:user_id (username, avatar_url)
+            `)
+            .eq('user_id', user.id)
+            .is('photo_proof_url', null) // FILTER: Only pending
+            .order('date', { ascending: false });
 
         if (error) throw error;
         return data;
