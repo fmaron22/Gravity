@@ -4,7 +4,6 @@ import Button from '../components/Button';
 import ExerciseCalendar from '../components/ExerciseCalendar';
 import EvidenceModal from '../components/EvidenceModal';
 import JoinChallenge from './JoinChallenge';
-import JoinChallenge from './JoinChallenge';
 import { PlusCircle, Info, Camera } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { verificationService } from '../services/verificationService';
