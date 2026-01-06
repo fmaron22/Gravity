@@ -92,6 +92,36 @@ export const dataService = {
         return { streak, total };
     },
 
+    async getWeeklyProgress() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return { count: 0, goal: 4 };
+
+        // Calculate Start of Week (Monday)
+        const d = new Date();
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+        const monday = new Date(d.setDate(diff));
+        const mondayStr = monday.toISOString().split('T')[0];
+
+        // End of Week is technically enough if we just fetch GTE Monday
+
+        const { data, error } = await supabase
+            .from('daily_logs')
+            .select('date')
+            .eq('user_id', user.id)
+            .gte('date', mondayStr);
+
+        if (error) {
+            console.error("Error fetching weekly progress", error);
+            return { count: 0, goal: 4 };
+        }
+
+        // Unique days count
+        const uniqueDays = new Set(data.map(l => l.date)).size;
+
+        return { count: uniqueDays, goal: 4 };
+    },
+
     async uploadAvatar(file) {
         const fileExt = file.name.split('.').pop();
         const fileName = `avatar_${Math.random()}.${fileExt}`;
