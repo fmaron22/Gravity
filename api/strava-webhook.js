@@ -28,8 +28,8 @@ export default async function handler(req, res) {
         const event = req.body;
         console.log("Strava Event:", event);
 
-        // We only care about "activity" created
-        if (event.object_type === 'activity' && event.aspect_type === 'create') {
+        // We care about "activity" created OR updated (to allow re-sync)
+        if (event.object_type === 'activity' && (event.aspect_type === 'create' || event.aspect_type === 'update')) {
             try {
                 const ownerId = event.owner_id; // Strava Athlete ID
                 const activityId = event.object_id;
