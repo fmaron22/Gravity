@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Check, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import Card from './Card';
 import EvidenceModal from './EvidenceModal';
 import { dataService } from '../services/dataService';

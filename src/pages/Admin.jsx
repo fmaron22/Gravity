@@ -55,11 +55,7 @@ const Admin = () => {
         setLogs(logs.map(l => l.id === id ? { ...l, is_verified: status } : l));
     };
 
-    const handleDelete = async (id) => {
-        if (!confirm("Delete this log permanently?")) return;
-        await dataService.deleteLog(id);
-        setLogs(logs.filter(l => l.id !== id));
-    };
+    /* handleDelete removed - data is permanent */
 
     const handleCreateChallenge = async (e) => {
         e.preventDefault();
