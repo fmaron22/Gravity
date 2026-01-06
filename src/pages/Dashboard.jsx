@@ -13,6 +13,12 @@ const Dashboard = () => {
     const { isSubscribed, subscribeToPush } = usePushNotifications();
     const [pendingLogs, setPendingLogs] = useState([]);
 
+    // Restore missing state variables
+    const [showLogModal, setShowLogModal] = useState(false);
+    const [refreshKey, setRefreshKey] = useState(0);
+    const [challenge, setChallenge] = useState(null);
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
         checkChallenge();
         checkPendingLogs();
@@ -79,11 +85,12 @@ const Dashboard = () => {
 
             <section style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
-                {/* PENDING ACTIVITIES SECTION - DISABLED FOR DEBUGGING
+                {/* PENDING ACTIVITIES SECTION */}
                 {pendingLogs.length > 0 && (
                     <div style={{ background: 'rgba(252, 76, 2, 0.1)', border: '1px solid #fc4c02', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
                         <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-         Pending Verification ({pendingLogs.length})
+                            <Info size={20} color="#fc4c02" />
+                            Pending Verification ({pendingLogs.length})
                         </h3>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
                             {pendingLogs.map(log => (
@@ -100,8 +107,7 @@ const Dashboard = () => {
                             ))}
                         </div>
                     </div>
-                )} 
-                */}
+                )}
 
                 {/* Main CTA: Log Today */}
                 <Button
