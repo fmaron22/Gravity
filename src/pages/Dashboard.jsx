@@ -56,6 +56,23 @@ const Dashboard = () => {
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     };
 
+    // Manual Sync Logic
+    const [isSyncing, setIsSyncing] = useState(false);
+
+    const handleManualSync = async () => {
+        setIsSyncing(true);
+        try {
+            const result = await dataService.manualSyncStrava();
+            alert(`Sync complete! ${result.processed} new activities.`);
+            checkPendingLogs(); // Refresh
+        } catch (e) {
+            console.error(e);
+            alert("Sync failed: " + e.message);
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
     if (loading) return <div className="container" style={{ paddingTop: '2rem' }}>Loading...</div>;
 
     // Force Join if no challenge
@@ -72,15 +89,33 @@ const Dashboard = () => {
                         Challenge: <span style={{ color: 'var(--color-primary)' }}>{challenge.name}</span>
                     </p>
                 </div>
-                {!isSubscribed && (
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <button
-                        onClick={subscribeToPush}
-                        style={{ background: 'var(--color-surface-hover)', border: '1px solid var(--color-primary)', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                        title="Enable Notifications"
+                        onClick={handleManualSync}
+                        disabled={isSyncing}
+                        style={{
+                            background: 'var(--color-surface)',
+                            border: '1px solid var(--color-border)',
+                            borderRadius: '8px',
+                            padding: '0 1rem',
+                            height: '40px',
+                            cursor: isSyncing ? 'wait' : 'pointer',
+                            color: 'var(--color-text-main)',
+                            fontSize: '0.9rem'
+                        }}
                     >
-                        🔔
+                        {isSyncing ? 'Syncing...' : 'Sync Strava 🔄'}
                     </button>
-                )}
+                    {!isSubscribed && (
+                        <button
+                            onClick={subscribeToPush}
+                            style={{ background: 'var(--color-surface-hover)', border: '1px solid var(--color-primary)', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            title="Enable Notifications"
+                        >
+                            🔔
+                        </button>
+                    )}
+                </div>
             </header>
 
             <section style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
