@@ -6,8 +6,12 @@ import './styles/global.css'
 import './styles/components.css'
 import './styles/layout.css'
 
+import ErrorBoundary from './components/ErrorBoundary.jsx'
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </React.StrictMode>,
 )
