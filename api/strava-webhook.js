@@ -86,48 +86,101 @@ export default async function handler(req, res) {
                 // --- VALIDATION LOGIC START ---
 
                 // 1. Check if Manual
-                // 1. Check if Manual (Requested by user to ALLOW manual for now)
                 // if (activity.manual) {
                 //    console.log(`Activity ${activityId} rejected: Manual entry.`);
                 //    return res.status(200).send('Activity rejected: Manual entry');
                 // }
 
-                // 2. Get User's Competition Rules
+                // --- VALIDATION LOGIC START ---
+
+                // 2. Get Rules from Challenge
                 const { data: profile } = await supabase
                     .from('profiles')
                     .select('current_challenge_id')
                     .eq('id', interaction.user_id)
                     .single();
 
-                let rules = { min_duration: 30, min_hr: 0 }; // Defaults
+                let verified = false;
+                let validationNotes = "";
+                let rules = {
+                    default: { min_hr: 95, min_duration: 45 },
+                    exceptions: {
+                        Run: { min_km: 4, max_pace: 8.5 },
+                        Swim: { min_km: 1 },
+                        Ride: { min_km: 10 },
+                        VirtualRide: { min_km: 10 }
+                    }
+                };
 
                 if (profile?.current_challenge_id) {
-                    const { data: competition } = await supabase
-                        .from('competitions')
+                    const { data: challenge } = await supabase
+                        .from('challenges')
                         .select('rules')
                         .eq('id', profile.current_challenge_id)
                         .single();
 
-                    if (competition?.rules) {
-                        rules = { ...rules, ...competition.rules };
+                    if (challenge?.rules) {
+                        rules = { ...rules, ...challenge.rules };
                     }
                 }
 
-                // 3. Validate against Rules (BUT DO NOT REJECT)
+                // 3. Apply Logic
+                const type = activity.type; // "Run", "Ride", "Swim", "WeightTraining", etc.
                 const durationMinutes = Math.round((activity.moving_time || 0) / 60);
                 const avgHr = Math.round(activity.average_heartrate || 0);
+                const distanceKm = (activity.distance || 0) / 1000;
 
-                let validationNotes = "";
-                if (durationMinutes < (rules.min_duration || 0)) {
-                    validationNotes += ` [Short Duration: ${durationMinutes}m < ${rules.min_duration}m]`;
-                }
-                if (avgHr < (rules.min_hr || 0)) {
-                    validationNotes += ` [Low HR: ${avgHr}bpm < ${rules.min_hr}bpm]`;
+                // Calculate Pace (min/km)
+                // Avoid division by zero
+                const pace = distanceKm > 0 ? (durationMinutes / distanceKm) : 0;
+
+                // Check Exceptions first
+                if (rules.exceptions && rules.exceptions[type]) {
+                    const ex = rules.exceptions[type];
+                    let passed = true;
+                    // Check Distance
+                    if (ex.min_km && distanceKm < ex.min_km) {
+                        validationNotes += ` [Dist Fail: ${distanceKm.toFixed(2)}km < ${ex.min_km}km]`;
+                        passed = false;
+                    }
+                    // Check Pace (Lower is faster/better usually, but user said "pace minor a 8.5")
+                    if (ex.max_pace && pace > ex.max_pace) {
+                        validationNotes += ` [Pace Fail: ${pace.toFixed(2)} > ${ex.max_pace} min/km]`;
+                        passed = false;
+                    }
+
+                    if (passed) {
+                        verified = true;
+                        validationNotes = "Verified by Sport Rule";
+                    } else {
+                        verified = false; // Rejected
+                        validationNotes = `Rejected: ${validationNotes}`;
+                    }
+                } else {
+                    // Default Rule
+                    const def = rules.default || {};
+                    let passed = true;
+                    if (def.min_duration && durationMinutes < def.min_duration) {
+                        validationNotes += ` [Time Fail: ${durationMinutes}m < ${def.min_duration}m]`;
+                        passed = false;
+                    }
+                    if (def.min_hr && avgHr < def.min_hr) {
+                        validationNotes += ` [HR Fail: ${avgHr}bpm < ${def.min_hr}bpm]`;
+                        passed = false;
+                    }
+
+                    if (passed) {
+                        verified = true;
+                        validationNotes = "Verified by General Rule";
+                    } else {
+                        verified = false; // Rejected
+                        validationNotes = `Rejected: ${validationNotes}`;
+                    }
                 }
 
                 // --- VALIDATION LOGIC END ---
 
-                // D. Insert into Daily Logs (PENDING PHOTO)
+                // D. Insert into Daily Logs
                 const logDate = activity.start_date.split('T')[0];
 
                 const { error: insertError } = await supabase
@@ -137,10 +190,10 @@ export default async function handler(req, res) {
                         date: logDate,
                         avg_heart_rate: avgHr,
                         duration_minutes: durationMinutes,
-                        distance_km: (activity.distance || 0) / 1000,
-                        photo_proof_url: null,     // EXPLICITLY NULL -> Pending Photo
-                        is_verified: false,        // Not verified yet
-                        notes: `Imported from Strava: ${activity.name}${validationNotes}`
+                        distance_km: distanceKm,
+                        photo_proof_url: verified ? "https://upload.wikimedia.org/wikipedia/commons/2/23/Strava_Logo.png" : null,
+                        is_verified: verified,
+                        notes: `Imported from Strava: ${activity.name}. ${validationNotes}`
                     }, { onConflict: 'user_id, date' });
 
                 if (insertError) console.error("Log Insert Error:", insertError);

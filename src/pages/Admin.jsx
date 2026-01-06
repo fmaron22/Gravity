@@ -20,7 +20,15 @@ const Admin = () => {
         end_date: '',
         penalty_amount: '50',
         required_days_per_week: '5',
-        moneypool_url: ''
+        moneypool_url: '',
+        rules: {
+            default: { min_hr: 95, min_duration: 45 },
+            exceptions: {
+                Run: { min_km: 4, max_pace: 8.5 },
+                Ride: { min_km: 10 },
+                Swim: { min_km: 1 }
+            }
+        }
     });
     const [myChallenges, setMyChallenges] = useState([]);
 
@@ -167,6 +175,96 @@ const Admin = () => {
                                 value={challengeForm.moneypool_url} onChange={e => setChallengeForm({ ...challengeForm, moneypool_url: e.target.value })}
                             />
 
+                            <div className="section-divider">Validation Defaults</div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <Input label="Min Duration (mins)" type="number"
+                                    value={challengeForm.rules.default.min_duration}
+                                    onChange={e => setChallengeForm({
+                                        ...challengeForm,
+                                        rules: {
+                                            ...challengeForm.rules,
+                                            default: { ...challengeForm.rules.default, min_duration: parseInt(e.target.value) }
+                                        }
+                                    })}
+                                />
+                                <Input label="Min Heart Rate (bpm)" type="number"
+                                    value={challengeForm.rules.default.min_hr}
+                                    onChange={e => setChallengeForm({
+                                        ...challengeForm,
+                                        rules: {
+                                            ...challengeForm.rules,
+                                            default: { ...challengeForm.rules.default, min_hr: parseInt(e.target.value) }
+                                        }
+                                    })}
+                                />
+                            </div>
+
+                            <div className="section-divider">Sport Exceptions</div>
+                            {/* Run */}
+                            <div className="exception-row">
+                                <span className="sport-icon">🏃 Run</span>
+                                <input type="number" placeholder="Min KM" className="mini-input"
+                                    value={challengeForm.rules.exceptions.Run.min_km}
+                                    onChange={e => setChallengeForm({
+                                        ...challengeForm,
+                                        rules: {
+                                            ...challengeForm.rules,
+                                            exceptions: {
+                                                ...challengeForm.rules.exceptions,
+                                                Run: { ...challengeForm.rules.exceptions.Run, min_km: parseFloat(e.target.value) }
+                                            }
+                                        }
+                                    })}
+                                />
+                                <input type="number" placeholder="Max Pace (min/km)" className="mini-input"
+                                    value={challengeForm.rules.exceptions.Run.max_pace}
+                                    onChange={e => setChallengeForm({
+                                        ...challengeForm,
+                                        rules: {
+                                            ...challengeForm.rules,
+                                            exceptions: {
+                                                ...challengeForm.rules.exceptions,
+                                                Run: { ...challengeForm.rules.exceptions.Run, max_pace: parseFloat(e.target.value) }
+                                            }
+                                        }
+                                    })}
+                                />
+                            </div>
+                            {/* Vote/Bicke */}
+                            <div className="exception-row">
+                                <span className="sport-icon">🚴 Ride</span>
+                                <input type="number" placeholder="Min KM" className="mini-input"
+                                    value={challengeForm.rules.exceptions.Ride.min_km}
+                                    onChange={e => setChallengeForm({
+                                        ...challengeForm,
+                                        rules: {
+                                            ...challengeForm.rules,
+                                            exceptions: {
+                                                ...challengeForm.rules.exceptions,
+                                                Ride: { ...challengeForm.rules.exceptions.Ride, min_km: parseFloat(e.target.value) }
+                                            }
+                                        }
+                                    })}
+                                />
+                            </div>
+                            {/* Swim */}
+                            <div className="exception-row">
+                                <span className="sport-icon">🏊 Swim</span>
+                                <input type="number" placeholder="Min KM" className="mini-input"
+                                    value={challengeForm.rules.exceptions.Swim.min_km}
+                                    onChange={e => setChallengeForm({
+                                        ...challengeForm,
+                                        rules: {
+                                            ...challengeForm.rules,
+                                            exceptions: {
+                                                ...challengeForm.rules.exceptions,
+                                                Swim: { ...challengeForm.rules.exceptions.Swim, min_km: parseFloat(e.target.value) }
+                                            }
+                                        }
+                                    })}
+                                />
+                            </div>
+
                             <Button type="submit" fullWidth>Create Challenge</Button>
                         </form>
                     </Card>
@@ -237,6 +335,16 @@ const Admin = () => {
                 .btn-action.delete { background: rgba(255, 69, 58, 0.1); color: var(--color-error); }
                 
                 .challenge-form-card { max-width: 600px; margin: 0 auto; }
+                .section-divider { 
+                    grid-column: 1 / -1; font-weight: bold; color: var(--color-secondary); 
+                    margin-top: 1rem; border-bottom: 1px dashed var(--color-border); padding-bottom: 0.25rem;
+                }
+                .exception-row { list-style: none; display: flex; align-items: center; gap: 0.5rem; }
+                .sport-icon { width: 80px; font-weight: bold; }
+                .mini-input { 
+                    padding: 0.5rem; border: 1px solid var(--color-border); border-radius: 4px; 
+                    background: rgba(255,255,255,0.05); color: white; width: 100px;
+                }
             `}</style>
         </div>
     );
