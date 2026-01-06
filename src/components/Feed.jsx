@@ -97,7 +97,16 @@ const FeedItem = ({ post }) => {
     };
 
     return (
-        <Card className="feed-item" style={{ marginBottom: '1.5rem', borderColor: isReported ? 'var(--color-error)' : '' }}>
+    return (
+        <Card
+            className="feed-item"
+            style={{
+                marginBottom: '1.5rem',
+                borderColor: post.is_verified === false ? 'var(--color-error)' : (isReported ? 'var(--color-error)' : ''),
+                background: post.is_verified === false ? 'rgba(255, 59, 48, 0.05)' : undefined
+            }}
+        >
+            {/* Header */}
             {/* Header */}
             <div className="feed-header">
                 <div className="avatar-placeholder">
@@ -111,7 +120,20 @@ const FeedItem = ({ post }) => {
                     <h4>{post.profiles?.username || 'Unknown User'}</h4>
                     <span className="timestamp">{new Date(post.created_at).toLocaleDateString()}</span>
                 </div>
-                {post.is_verified && <CheckCircle size={16} color="var(--color-success)" />}
+                {post.is_verified === true && <CheckCircle size={16} color="var(--color-success)" />}
+                {post.is_verified === false && (
+                    <span style={{
+                        color: 'var(--color-error)',
+                        border: '1px solid var(--color-error)',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        fontSize: '0.7rem',
+                        fontWeight: 'bold',
+                        display: 'flex', alignItems: 'center', gap: '4px'
+                    }}>
+                        <AlertOctagon size={12} /> REJECTED
+                    </span>
+                )}
             </div>
 
             {/* Stats Grid */}

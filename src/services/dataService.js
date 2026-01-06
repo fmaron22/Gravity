@@ -164,7 +164,7 @@ export const dataService = {
         comments (id, content, created_at, profiles:user_id(username))
       `)
             .not('photo_proof_url', 'is', null) // Must have proof
-            .eq('is_verified', true)            // Must be accepted (default on upload)
+            // .eq('is_verified', true)         // SHOW ALL (Rejected will be styled red)
             .order('created_at', { ascending: false })
             .limit(50);
 
