@@ -4,9 +4,9 @@ import Button from '../components/Button';
 import ExerciseCalendar from '../components/ExerciseCalendar';
 import EvidenceModal from '../components/EvidenceModal';
 import JoinChallenge from './JoinChallenge';
-import { PlusCircle, Info, Camera } from 'lucide-react'; // Added Camera
+import { PlusCircle } from 'lucide-react';
 import { dataService } from '../services/dataService';
-import { verificationService } from '../services/verificationService'; // Added verificationService
+// import { verificationService } from '../services/verificationService'; 
 import { usePushNotifications } from '../hooks/usePushNotifications';
 
 const Dashboard = () => {
@@ -79,12 +79,11 @@ const Dashboard = () => {
 
             <section style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
-                {/* PENDING ACTIVITIES SECTION */}
+                {/* PENDING ACTIVITIES SECTION - DISABLED FOR DEBUGGING
                 {pendingLogs.length > 0 && (
                     <div style={{ background: 'rgba(252, 76, 2, 0.1)', border: '1px solid #fc4c02', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
                         <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Info size={20} color="#fc4c02" />
-                            Pending Verification ({pendingLogs.length})
+         Pending Verification ({pendingLogs.length})
                         </h3>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
                             {pendingLogs.map(log => (
@@ -96,19 +95,13 @@ const Dashboard = () => {
                                     <div style={{ fontSize: '0.9rem', marginBottom: '1rem', color: 'var(--color-text-secondary)' }}>
                                         {log.duration_minutes} min | {log.avg_heart_rate} bpm
                                     </div>
-                                    {/* We can re-use FeedItem Logic or just a simple Upload Button that opens a modal */}
-                                    {/* For MVP Dashboard, let's direct them to Feed? No, requirement is to handle it HERE. */}
-                                    {/* We need the Upload Logic here. */}
-                                    {/* Simplest: Reuse the FeedItem component if exported? */}
-                                    {/* FeedItem is NOT exported. I'll instruct the user to use the 'Feed' to upload? */}
-                                    {/* No, user explicitely said: "abajo debe aparacer las actividades... si no está la actividad mas la foto entonces no pasan al feed social". */}
-                                    {/* So I must implement upload here. */}
                                     <PendingActivityItem log={log} onUploadSuccess={checkPendingLogs} />
                                 </Card>
                             ))}
                         </div>
                     </div>
-                )}
+                )} 
+                */}
 
                 {/* Main CTA: Log Today */}
                 <Button

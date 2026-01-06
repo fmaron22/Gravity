@@ -8,6 +8,9 @@ import './styles/layout.css'
 
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 
+// DEBUG: Confirm JS loads
+// try { alert('Gravity App Loaded'); } catch(e) {}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
