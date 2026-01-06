@@ -112,18 +112,16 @@ export default async function handler(req, res) {
                     }
                 }
 
-                // 3. Validate against Rules
+                // 3. Validate against Rules (BUT DO NOT REJECT)
                 const durationMinutes = Math.round((activity.moving_time || 0) / 60);
                 const avgHr = Math.round(activity.average_heartrate || 0);
 
+                let validationNotes = "";
                 if (durationMinutes < (rules.min_duration || 0)) {
-                    console.log(`Activity ${activityId} rejected: Duration ${durationMinutes} < ${rules.min_duration}`);
-                    return res.status(200).send('Activity rejected: Too short');
+                    validationNotes += ` [Short Duration: ${durationMinutes}m < ${rules.min_duration}m]`;
                 }
-
                 if (avgHr < (rules.min_hr || 0)) {
-                    console.log(`Activity ${activityId} rejected: HR ${avgHr} < ${rules.min_hr}`);
-                    return res.status(200).send('Activity rejected: Heart rate too low');
+                    validationNotes += ` [Low HR: ${avgHr}bpm < ${rules.min_hr}bpm]`;
                 }
 
                 // --- VALIDATION LOGIC END ---
@@ -140,7 +138,7 @@ export default async function handler(req, res) {
                         duration_minutes: durationMinutes,
                         photo_proof_url: null,     // EXPLICITLY NULL -> Pending Photo
                         is_verified: false,        // Not verified yet
-                        notes: `Imported from Strava: ${activity.name}`
+                        notes: `Imported from Strava: ${activity.name}${validationNotes}`
                     }, { onConflict: 'user_id, date' });
 
                 if (insertError) console.error("Log Insert Error:", insertError);
