@@ -94,17 +94,21 @@ const Dashboard = () => {
                         onClick={handleManualSync}
                         disabled={isSyncing}
                         style={{
-                            background: 'var(--color-surface)',
-                            border: '1px solid var(--color-border)',
+                            background: 'transparent',
+                            border: '2px solid #fc4c02',
+                            color: '#fc4c02',
                             borderRadius: '8px',
                             padding: '0 1rem',
                             height: '40px',
                             cursor: isSyncing ? 'wait' : 'pointer',
-                            color: 'var(--color-text-main)',
-                            fontSize: '0.9rem'
+                            fontWeight: 'bold',
+                            fontSize: '0.9rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
                         }}
                     >
-                        {isSyncing ? 'Syncing...' : 'Sync Strava 🔄'}
+                        {isSyncing ? 'Syncing...' : '↻ Sync Strava'}
                     </button>
                     {!isSubscribed && (
                         <button
