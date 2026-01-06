@@ -239,8 +239,8 @@ const Admin = () => {
                 .card-media img { height: 100%; flex: 1; object-fit: cover; border-radius: var(--radius-sm); cursor: pointer; }
                 .card-actions { display: flex; gap: 0.5rem; border-top: 1px solid var(--color-border); padding-top: 0.5rem; }
                 .btn-action { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.25rem; padding: 0.5rem; border-radius: var(--radius-sm); border: none; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; }
-                .btn-action.approve { background: rgba(50, 215, 75, 0.1); color: var(--color-success); }
-                .btn-action.reject { background: rgba(255, 255, 255, 0.05); color: var(--color-text-muted); }
+                .btn-action.approve { background: rgba(50, 215, 75, 0.15); color: var(--color-success); border: 1px solid rgba(50, 215, 75, 0.3); }
+                .btn-action.reject { background: rgba(255, 149, 0, 0.15); color: #ff9f0a; border: 1px solid rgba(255, 149, 0, 0.3); } /* Orange/Red for Revoke */
                 .btn-action.delete { background: rgba(255, 69, 58, 0.1); color: var(--color-error); }
                 
                 .challenge-form-card { max-width: 600px; margin: 0 auto; }
