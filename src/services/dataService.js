@@ -128,7 +128,9 @@ export const dataService = {
         const payload = {
             user_id: user.id,
             date: date,
-            ...evidenceData
+            ...evidenceData,
+            // If creating with proof, auto-accept.
+            is_verified: !!evidenceData.photo_proof_url
         };
 
         if (existing) {
@@ -143,7 +145,10 @@ export const dataService = {
     async updateLogProof(logId, photoUrl) {
         const { error } = await supabase
             .from('daily_logs')
-            .update({ photo_proof_url: photoUrl })
+            .update({
+                photo_proof_url: photoUrl,
+                is_verified: true // Auto-accept on upload
+            })
             .eq('id', logId);
         if (error) throw error;
     },
@@ -158,7 +163,8 @@ export const dataService = {
         profiles:user_id (username, avatar_url),
         comments (id, content, created_at, profiles:user_id(username))
       `)
-            .not('photo_proof_url', 'is', null) // FILTERED: Only verified
+            .not('photo_proof_url', 'is', null) // Must have proof
+            .eq('is_verified', true)            // Must be accepted (default on upload)
             .order('created_at', { ascending: false })
             .limit(50);
 
