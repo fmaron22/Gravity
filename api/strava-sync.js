@@ -63,6 +63,7 @@ export default async function handler(req, res) {
         let syncedCount = 0;
         let manualCount = 0;
         let duplicateCount = 0;
+        let responseError = null;
 
         // 4. Process Each
         for (const activity of activities) {
@@ -103,14 +104,20 @@ export default async function handler(req, res) {
                     notes: `Synced Manual: ${activity.name}`
                 }, { onConflict: 'user_id, date' });
 
-            if (!insertError) syncedCount++;
+            if (!insertError) {
+                syncedCount++;
+            } else {
+                console.error("Insert Error:", insertError);
+                // Capture the first error to show user
+                if (!responseError) responseError = insertError;
+            }
         }
 
         return res.status(200).json({
             success: true,
             synced: syncedCount,
             total_fetched: activities.length,
-            message: `Fetched ${activities.length}. Imported: ${syncedCount}. Ignored: ${manualCount} Manual, ${duplicateCount} Verified.`
+            message: `Fetched ${activities.length}. Imported: ${syncedCount}. Ignored: ${manualCount} Manual, ${duplicateCount} Verified. Errors: ${responseError ? responseError.message : 'None'}`
         });
 
     } catch (error) {

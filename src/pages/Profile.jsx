@@ -113,8 +113,11 @@ const Profile = () => {
         setIsSyncing(true);
         try {
             const result = await dataService.manualSyncStrava();
-            alert(result.message || `Sync Complete! Imported ${result.synced} new activities.`);
-            // Refresh integration status or stats? loading profile usually does stats
+            if (result.success) {
+                alert(result.message);
+            } else {
+                alert(`Sync Error: ${result.error}`);
+            }
             loadProfile();
         } catch (error) {
             console.error(error);
