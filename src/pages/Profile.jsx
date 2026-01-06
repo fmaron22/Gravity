@@ -113,11 +113,8 @@ const Profile = () => {
         setIsSyncing(true);
         try {
             const result = await dataService.manualSyncStrava();
-            if (result.success) {
-                alert(result.message);
-            } else {
-                alert(`Sync Error: ${result.error}`);
-            }
+            // SHOW RAW DEBUG DATA
+            alert(JSON.stringify(result, null, 2));
             loadProfile();
         } catch (error) {
             console.error(error);

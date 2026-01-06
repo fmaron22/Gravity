@@ -67,10 +67,11 @@ export default async function handler(req, res) {
 
         // 4. Process Each
         for (const activity of activities) {
-            if (activity.manual) {
-                manualCount++;
-                continue;
-            }
+            // Check if manual (Requested by user to ALLOW manual for now)
+            // if (activity.manual) {
+            //     manualCount++;
+            //     continue;
+            // }
 
             const logDate = activity.start_date.split('T')[0];
             const durationMinutes = Math.round((activity.moving_time || 0) / 60);
@@ -117,7 +118,7 @@ export default async function handler(req, res) {
             success: true,
             synced: syncedCount,
             total_fetched: activities.length,
-            message: `Fetched ${activities.length}. Imported: ${syncedCount}. Ignored: ${manualCount} Manual, ${duplicateCount} Verified. Errors: ${responseError ? responseError.message : 'None'}`
+            message: `Fetched ${activities.length}. Imported: ${syncedCount}. Ignored: ${duplicateCount} Verified. Errors: ${responseError ? responseError.message : 'None'}`
         });
 
     } catch (error) {

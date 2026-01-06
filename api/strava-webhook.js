@@ -86,10 +86,11 @@ export default async function handler(req, res) {
                 // --- VALIDATION LOGIC START ---
 
                 // 1. Check if Manual
-                if (activity.manual) {
-                    console.log(`Activity ${activityId} rejected: Manual entry.`);
-                    return res.status(200).send('Activity rejected: Manual entry');
-                }
+                // 1. Check if Manual (Requested by user to ALLOW manual for now)
+                // if (activity.manual) {
+                //    console.log(`Activity ${activityId} rejected: Manual entry.`);
+                //    return res.status(200).send('Activity rejected: Manual entry');
+                // }
 
                 // 2. Get User's Competition Rules
                 const { data: profile } = await supabase
