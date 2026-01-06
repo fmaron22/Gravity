@@ -127,110 +127,108 @@ const Dashboard = () => {
                             🔔
                         </button>
                     )}
-                </div>
-        </div>
-            </header >
+            </header>
 
-    {/* Weekly Progress Card */ }
-{
-    weeklyStats && (
-        <div style={{
-            marginBottom: '1.5rem',
-            padding: '1rem',
-            background: weeklyStats.count >= weeklyStats.goal ? 'linear-gradient(135deg, rgba(50, 215, 75, 0.2), rgba(0,0,0,0))' : 'linear-gradient(135deg, rgba(252, 76, 2, 0.1), rgba(0,0,0,0))',
-            border: `1px solid ${weeklyStats.count >= weeklyStats.goal ? 'var(--color-success)' : 'var(--color-primary)'}`,
-            borderRadius: 'var(--radius-md)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-        }}>
-            <div>
-                <h3 style={{ fontSize: '1.2rem', marginBottom: '0.25rem' }}>
-                    {weeklyStats.count >= weeklyStats.goal ? 'Weekly Goal Crushed! 🔥' : 'Weekly Goal'}
-                </h3>
-                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
-                    {weeklyStats.count >= weeklyStats.goal
-                        ? "You're a machine! Keep it up."
-                        : `You need ${weeklyStats.goal - weeklyStats.count} more workouts this week.`
-                    }
-                </p>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '2rem', fontWeight: 'bold', color: weeklyStats.count >= weeklyStats.goal ? 'var(--color-success)' : 'var(--color-primary)' }}>
-                    {weeklyStats.count}/{weeklyStats.goal}
-                </span>
-            </div>
-        </div>
-    )
-}
-
-<section style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-
-    {/* PENDING ACTIVITIES SECTION */}
-    {pendingLogs.length > 0 && (
-        <div style={{ background: 'rgba(252, 76, 2, 0.1)', border: '1px solid #fc4c02', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span>ℹ️</span>
-                Pending Verification ({pendingLogs.length})
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
-                {pendingLogs.map(log => (
-                    <Card key={log.id} style={{ padding: '1rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                            <span style={{ fontWeight: 'bold' }}>{log.notes || 'Activity'}</span>
-                            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{log.date}</span>
+            {/* Weekly Progress Card */}
+            {
+                weeklyStats && (
+                    <div style={{
+                        marginBottom: '1.5rem',
+                        padding: '1rem',
+                        background: weeklyStats.count >= weeklyStats.goal ? 'linear-gradient(135deg, rgba(50, 215, 75, 0.2), rgba(0,0,0,0))' : 'linear-gradient(135deg, rgba(252, 76, 2, 0.1), rgba(0,0,0,0))',
+                        border: `1px solid ${weeklyStats.count >= weeklyStats.goal ? 'var(--color-success)' : 'var(--color-primary)'}`,
+                        borderRadius: 'var(--radius-md)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                    }}>
+                        <div>
+                            <h3 style={{ fontSize: '1.2rem', marginBottom: '0.25rem' }}>
+                                {weeklyStats.count >= weeklyStats.goal ? 'Weekly Goal Crushed! 🔥' : 'Weekly Goal'}
+                            </h3>
+                            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+                                {weeklyStats.count >= weeklyStats.goal
+                                    ? "You're a machine! Keep it up."
+                                    : `You need ${weeklyStats.goal - weeklyStats.count} more workouts this week.`
+                                }
+                            </p>
                         </div>
-                        <div style={{ fontSize: '0.9rem', marginBottom: '1rem', color: 'var(--color-text-secondary)' }}>
-                            {log.duration_minutes} min | {log.avg_heart_rate} bpm
+                        <div style={{ textAlign: 'right' }}>
+                            <span style={{ fontSize: '2rem', fontWeight: 'bold', color: weeklyStats.count >= weeklyStats.goal ? 'var(--color-success)' : 'var(--color-primary)' }}>
+                                {weeklyStats.count}/{weeklyStats.goal}
+                            </span>
                         </div>
-                        <PendingActivityItem log={log} onUploadSuccess={checkPendingLogs} />
+                    </div>
+                )
+            }
+
+            <section style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+                {/* PENDING ACTIVITIES SECTION */}
+                {pendingLogs.length > 0 && (
+                    <div style={{ background: 'rgba(252, 76, 2, 0.1)', border: '1px solid #fc4c02', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
+                        <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span>ℹ️</span>
+                            Pending Verification ({pendingLogs.length})
+                        </h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+                            {pendingLogs.map(log => (
+                                <Card key={log.id} style={{ padding: '1rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                        <span style={{ fontWeight: 'bold' }}>{log.notes || 'Activity'}</span>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{log.date}</span>
+                                    </div>
+                                    <div style={{ fontSize: '0.9rem', marginBottom: '1rem', color: 'var(--color-text-secondary)' }}>
+                                        {log.duration_minutes} min | {log.avg_heart_rate} bpm
+                                    </div>
+                                    <PendingActivityItem log={log} onUploadSuccess={checkPendingLogs} />
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Main CTA: Log Today */}
+                <Button
+                    fullWidth
+                    className="btn-primary"
+                    style={{ padding: '1.25rem', fontSize: '1.1rem', gap: '0.5rem' }}
+                    onClick={() => setShowLogModal(true)}
+                >
+                    <PlusCircle size={24} />
+                    Log Today's Workout
+                </Button>
+
+                {/* Main Calendar */}
+                <ExerciseCalendar key={refreshKey} />
+
+                {/* Social Rank Teaser moved to side or bottom */}
+                {challenge.moneypool_url && (
+                    <Card style={{ textAlign: 'center', borderColor: 'var(--color-secondary)' }}>
+                        <p style={{ marginBottom: '0.5rem', fontWeight: 'bold' }}>Missed a day? Pay up!</p>
+                        <a
+                            href={challenge.moneypool_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{ color: 'var(--color-secondary)', textDecoration: 'underline' }}
+                        >
+                            Moneypool Link
+                        </a>
                     </Card>
-                ))}
-            </div>
-        </div>
-    )}
+                )}
 
-    {/* Main CTA: Log Today */}
-    <Button
-        fullWidth
-        className="btn-primary"
-        style={{ padding: '1.25rem', fontSize: '1.1rem', gap: '0.5rem' }}
-        onClick={() => setShowLogModal(true)}
-    >
-        <PlusCircle size={24} />
-        Log Today's Workout
-    </Button>
+            </section>
 
-    {/* Main Calendar */}
-    <ExerciseCalendar key={refreshKey} />
-
-    {/* Social Rank Teaser moved to side or bottom */}
-    {challenge.moneypool_url && (
-        <Card style={{ textAlign: 'center', borderColor: 'var(--color-secondary)' }}>
-            <p style={{ marginBottom: '0.5rem', fontWeight: 'bold' }}>Missed a day? Pay up!</p>
-            <a
-                href={challenge.moneypool_url}
-                target="_blank"
-                rel="noreferrer"
-                style={{ color: 'var(--color-secondary)', textDecoration: 'underline' }}
-            >
-                Moneypool Link
-            </a>
-        </Card>
-    )}
-
-</section>
-
-{/* Direct Log Modal */ }
-{
-    showLogModal && (
-        <EvidenceModal
-            date={getTodayString()}
-            onClose={() => setShowLogModal(false)}
-            onSave={handleEvidenceSaved}
-        />
-    )
-}
+            {/* Direct Log Modal */}
+            {
+                showLogModal && (
+                    <EvidenceModal
+                        date={getTodayString()}
+                        onClose={() => setShowLogModal(false)}
+                        onSave={handleEvidenceSaved}
+                    />
+                )
+            }
         </div >
     );
 };
