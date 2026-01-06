@@ -127,6 +127,7 @@ const Dashboard = () => {
                             🔔
                         </button>
                     )}
+                </div>
             </header>
 
             {/* Weekly Progress Card */}
