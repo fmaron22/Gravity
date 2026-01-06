@@ -100,7 +100,12 @@ export default async function handler(req, res) {
             if (!insertError) syncedCount++;
         }
 
-        return res.status(200).json({ success: true, synced: syncedCount, total: activities.length });
+        return res.status(200).json({
+            success: true,
+            synced: syncedCount,
+            total_fetched: activities.length,
+            message: `Fetched ${activities.length} activities. Imported ${syncedCount}. (Ignored ${activities.length - syncedCount} as Manual/Duplicate)`
+        });
 
     } catch (error) {
         console.error("Sync Error:", error);

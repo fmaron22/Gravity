@@ -113,7 +113,7 @@ const Profile = () => {
         setIsSyncing(true);
         try {
             const result = await dataService.manualSyncStrava();
-            alert(`Sync Complete! Imported ${result.synced} new activities.`);
+            alert(result.message || `Sync Complete! Imported ${result.synced} new activities.`);
             // Refresh integration status or stats? loading profile usually does stats
             loadProfile();
         } catch (error) {
@@ -121,6 +121,18 @@ const Profile = () => {
             alert("Sync Failed: " + error.message);
         } finally {
             setIsSyncing(false);
+        }
+    };
+
+    const handleUnlink = async () => {
+        if (!confirm("Are you sure you want to disconnect Strava?")) return;
+        try {
+            await dataService.unlinkStrava();
+            setIsStravaConnected(false);
+            alert("Disconnected.");
+        } catch (error) {
+            console.error(error);
+            alert("Failed to disconnect.");
         }
     };
 
@@ -252,6 +264,12 @@ const Profile = () => {
                                 <Activity size={14} style={{ marginRight: '4px' }} />
                                 {isSyncing ? 'Syncing...' : 'Sync Now'}
                             </Button>
+                            <span
+                                onClick={handleUnlink}
+                                style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textDecoration: 'underline', cursor: 'pointer' }}
+                            >
+                                Unlink
+                            </span>
                         </div>
                     ) : (
                         <Button

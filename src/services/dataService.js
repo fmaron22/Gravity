@@ -461,6 +461,19 @@ export const dataService = {
         return await response.json();
     },
 
+    async unlinkStrava() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
+
+        const { error } = await supabase
+            .from('user_integrations')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('provider', 'strava');
+
+        if (error) throw error;
+    },
+
     async getIntegrationStatus() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return null;
