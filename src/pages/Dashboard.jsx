@@ -4,7 +4,7 @@ import Button from '../components/Button';
 import ExerciseCalendar from '../components/ExerciseCalendar';
 import EvidenceModal from '../components/EvidenceModal';
 import JoinChallenge from './JoinChallenge';
-import { PlusCircle, Info, Camera } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { verificationService } from '../services/verificationService';
 import { usePushNotifications } from '../hooks/usePushNotifications';
@@ -89,7 +89,7 @@ const Dashboard = () => {
                 {pendingLogs.length > 0 && (
                     <div style={{ background: 'rgba(252, 76, 2, 0.1)', border: '1px solid #fc4c02', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
                         <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Info size={20} color="#fc4c02" />
+                            <span>ℹ️</span>
                             Pending Verification ({pendingLogs.length})
                         </h3>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
@@ -219,7 +219,7 @@ const PendingActivityItem = ({ log, onUploadSuccess }) => {
                 <span>Uploading...</span>
             ) : (
                 <>
-                    <Camera size={20} />
+                    <span>📷</span>
                     <span>Upload Proof</span>
                 </>
             )}
